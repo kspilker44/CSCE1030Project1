@@ -1,0 +1,204 @@
+#include <iostream>
+#include <string>
+#include <cstdlib>
+
+using namespace std;
+
+
+// this is the enum for the menu choices
+enum MenuChoice {
+    displayLeft, displayRight, guess, changeNumbers, quit
+};
+
+istream &operator>>(istream &is, MenuChoice &choice) {
+    string name;
+    is >> name;
+
+    if (name == "1")		//Branch of if, else if, and else statement to allow the user to make a selction in the menu. slections are made 1-5.
+        choice = displayLeft;
+    else if (name == "2")
+        choice = displayRight;
+    else if (name == "3")
+        choice = guess;
+    else if (name == "4")
+        choice = changeNumbers;
+    else if (name == "5")
+        choice = quit;
+    else
+        choice = quit;
+
+    return is;
+}
+
+MenuChoice choice;
+
+int mainMenu() {
+    // main menu
+    cout << "Enter your choice:"	//The output for entering menu choices to the user.
+         << "\n1. Display left"
+         << "\n2. Display right"
+         << "\n3. Guess"
+         << "\n4. Change numbers"
+         << "\n5. Quit \n" << endl;
+    return choice;
+}
+
+
+int main() {
+
+    //declaring variables		//Declaring variables for player name, starting points, user input guess (and last guess), and displaying of the bounds. 
+    string playerName;
+    int lifePoints = 100;
+    int leftNum, rightNum, guessNum, lastGuessNum;
+    int displayNum = 0;
+
+    do {				// A do while loop seeding the randomly generated numbers from 100-200.
+        srand(time(0));
+        leftNum = rand() % 100 + 100;
+        rightNum = rand() % 100 + 100;
+    } while (leftNum >= rightNum);	//While stating left num must be greater than the right.
+
+
+
+
+    // starting menu
+    cout << "Enter your name: ";	//Intial starting point when running code. User must enter name, and is invalid if anything other then letters is used.
+    getline(cin, playerName);
+    for(int i=0;i<playerName.length();i++){
+        if((!isalpha(playerName.at(i)))&&(playerName.at(i)!=' ')){
+            cout<<"Invalid name. Name may only contain letters"<<endl;
+            cout<<"Enter your name: ";
+            getline(cin,playerName);
+        }
+    }
+    for(int i=0;i<playerName.length();i++){	  //A for statement designed to change every intial in name to upper, and every non intial to lower.
+        if(islower(playerName.at(0))){
+            playerName.at(0)=toupper(playerName.at(0));
+        }
+        else if(playerName.at(i)==' '){
+            playerName.at(i+1)=toupper(playerName.at(i+1));
+        }
+    }
+    cout << "\nWelcome to the game, " << playerName << endl;	//Welcome statemnt to game.
+    cout << "*******************************" << endl;
+
+
+
+    // this combination shows the main menu and then gets the user's choice
+    mainMenu();
+    cout << "this round..." << leftNum << " " << rightNum << " " << displayNum << endl;
+    cin >> choice;
+
+
+
+    // gets a user's choice
+    while (choice != quit) {
+        switch (choice) {	// A loop with a nested switch case for user input aside from quit.
+
+            case displayLeft:			//Case for displaying lower bound.
+
+                if (displayNum != rightNum) {	//If user choice is display left, the lower left bound is displayed.
+                    displayNum = leftNum;
+                    cout << "The lower number is " << leftNum << endl;
+                } else cout << "You already displayed a number." << endl; //If user already selected choice this message is promted.
+                cout << "*******************************" << endl;
+                mainMenu();
+                cin >> choice;
+                break;
+
+
+            case displayRight:			//Case for displaying upper bound.
+
+                if (displayNum != leftNum) {	//If user choice is display right, the upper left bound is displayed.
+                    displayNum = rightNum;
+                    cout << "The upper number is " << rightNum << endl;
+                } else cout << "You already displayed a number." << endl;	//If user already selected choice this message is promted.
+                cout << "*******************************" << endl;
+                mainMenu();
+                cin >> choice;
+                break;
+
+
+            case guess:				//case for user guessing and allocating points.
+                cout << "Enter your guess: ";	//Saves user input guess.
+                cin >> guessNum;
+
+                if (guessNum == lastGuessNum) {		
+                    cout << "You just guessed that number." << endl;	//If users guess was same as last guess display this message.
+                    cout << "*******************************" << endl;
+                    break;
+                }
+
+                if (displayNum == 0) {					//If statement to allocate points if user has not had assitance with bounds.
+                    if (leftNum < guessNum && guessNum < rightNum) {
+                        cout << "You guessed " << guessNum << "...\n";	//Correct guess, +5 points awarded to user.
+                        cout << "You guessed correctly! +5" << endl;
+                        lifePoints += 5;
+                        cout << "Current score is: " << lifePoints << endl;
+                        lastGuessNum = guessNum;
+                        cout << "*******************************" << endl;
+
+                    } else {
+                        cout << "You guessed " << guessNum << "...\n";	//Incorrect guess, -5 points to user.
+                        cout << "You guessed incorrectly. -5" << endl;
+                        lifePoints -= 5;
+                        cout << "Current score is: " << lifePoints << endl;
+                        lastGuessNum = guessNum;
+                        cout << "*******************************" << endl;
+
+                    }
+                }
+
+                //this means the person has already displayed a number and the points are reduced
+                if (displayNum == leftNum || displayNum == rightNum) {
+                    if (leftNum < guessNum && guessNum < rightNum) {
+                        cout << "You guessed " << guessNum << "...\n";	//Correct guess (with bound assitance), +1 point to user.
+                        cout << "You guessed correctly! +1" << endl;
+                        lifePoints += 1;
+                        cout << "Current score is: " << lifePoints << endl;
+                        lastGuessNum = guessNum;
+                        cout << "*******************************" << endl;
+
+                    } else {
+                        cout << "You guessed " << guessNum << "...\n";	//Incorrect guess (with bound assitance), -10 point to user.
+                        cout << "You guessed incorrectly. -10" << endl;
+                        lifePoints -= 10;
+                        cout << "Current score is: " << lifePoints << endl;
+                        lastGuessNum = guessNum;
+                        cout << "*******************************" << endl;
+
+                    }
+                }
+                break;
+
+
+            case changeNumbers:				//Case for changing the randomly seeded numbers to a new set.
+
+                do {
+                    leftNum = rand() % 100 + 100;
+                    rightNum = rand() % 100 + 100;
+                } while (leftNum > rightNum);
+
+                cout << "Change numbers." << endl;
+                cout << "*******************************" << endl;
+                break;
+
+
+            case quit:					//Case for user quitting program.
+                exit(0);
+
+
+            default:							//Default when the user does not select an option 1-5.
+                cout << "Not a valid selection, sorry!" << endl;
+                cout << "*******************************" << endl;
+                break;
+        }
+
+        mainMenu();
+        cin >> choice;
+    }
+
+    cout << "Goodbye, World!" << endl;					//Output message when the game is over.
+    return 0;
+}
+
